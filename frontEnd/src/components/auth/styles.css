@@ -1,0 +1,31 @@
+.inputFieldView {
+    display: flex;
+
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+}
+
+.loginStyle {
+    display: flex;
+    flex: 2;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 2px 10px grey;
+    margin: 30px;
+    height: 500px;
+}
+
+.leftStyle {
+    display: flex;
+    flex: 2;
+    border-right: 1px solid gray;
+}
+
+.iconStyle {
+    background-color: red;
+}
