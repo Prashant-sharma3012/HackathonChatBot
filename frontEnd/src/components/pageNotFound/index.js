@@ -16,7 +16,7 @@ const PageNotFound = (props) => {
                   marginTop: "1rem"
                 }}
                 onClick={() => {
-                    props.history.push("/dashboard");
+                    props.history.push("/login");
                 }}
                 className="btn btn-large waves-effect waves-light hoverable blue accent-3"
               >

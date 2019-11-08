@@ -11,6 +11,7 @@ import PageNotFound from "./pageNotFound";
 const Routes = () => {
     return (
         <Switch>
+            <PublicRoute exact path="/" component={Login} />
             <PublicRoute path="/login" component={Login} />
             <PublicRoute path="/login?token=id" component={Login} />
             <PrivateRoute exact path="/overview" component={Dashboard} />
