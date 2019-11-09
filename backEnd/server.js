@@ -74,6 +74,20 @@ app.post("/ansMsg", Authenticated, async (req, res) => {
       },
     },
   };
+
+  const accountTeam = db.collection('employeeData').find({account: userData.account, positionStatus: "Active"})
+
+  const teamStructure = {}
+
+  accountTeam.map(data=>{
+    const title = accountTeam.jobTitleDescription
+    if(teamStructure.indexOf(title)===-1){
+      teamStructure.title = []
+      teamStructure.title.push(data)
+    }else{
+      teamStructure.title.push(data)
+    }
+  })
  
   // Send request and log result
   const responses = await sessionClient.detectIntent(request);

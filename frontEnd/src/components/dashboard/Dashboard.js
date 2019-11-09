@@ -9,19 +9,44 @@ import Fab from "@material-ui/core/Fab";
 import Grid from "@material-ui/core/Grid";
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import axios from 'axios'
+import { Bar, Doughnut } from 'react-chartjs-2'
 import './styles.css'
 
 
 class Dashboard extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      teamTitles: undefined,
+      positionTypeCount: undefined,
+      totalCountOfTeam: undefined
+    }
+  }
   componentDidMount() {
     addResponseMessage("Welcome to this awesome chat!");
+    axios.get('http://localhost:8000/teamInfo').then(res=>{
+      console.log("------------", res.data)
+      const data = res.data.teamStructure
+      const teamTitles = Object.keys(data)
+      let count = 0
+      const positionTypeCount = teamTitles.map(d=>{
+        count = count+data[d].length;
+        return data[d].length
+      })
+      console.log("=========teamTitles=========", teamTitles)
+      console.log("========positionTypeCount==========", positionTypeCount)
+      this.setState({
+        teamTitles,
+        positionTypeCount,
+        totalCountOfTeam: count
+      })
+    })
   }
 
   handleNewUserMessage = (newMessage) => {
     console.log(`New message incomig! ${newMessage}`);
     // Now send the message throught the backend API
     axios.post('http://localhost:8000/ansMsg', {msg: newMessage}).then(res=>{
-      console.log("------------", res.data)
       addResponseMessage(res.data.message)
     })
   }
@@ -32,6 +57,7 @@ class Dashboard extends Component {
 
   render() {
     const { user } = this.props.auth;
+    const { teamTitles, positionTypeCount, totalCountOfTeam } = this.state
     return (
       // <div style={{ height: "75vh" }} className="container valign-wrapper">
       <div>
@@ -55,6 +81,92 @@ class Dashboard extends Component {
               <ExitToAppRoundedIcon />
             </Fab>
           </Grid>
+          <Grid xs={12}   container
+            direction="row"
+            justify="center"
+            alignItems="center">
+          <Grid xs={5} item>
+          <Bar
+            height={300}
+             options= {{
+              maintainAspectRatio: false,
+              responsive: true,
+              legend: {
+                display: false
+              },
+              animation: {
+                duration: 1000,
+                easing: "easeInOutQuint"
+              },
+              scales: {
+                xAxes: [
+                  {
+                    ticks: {
+                      autoSkip: false
+                    }
+                  }
+                ],
+                yAxes: [
+                  {
+                    ticks: {
+                      min: 0,
+                      stepSize: 2
+                    }
+                  }
+                ]
+              },
+              tooltips: {
+                callbacks: {
+                  label: toolTipItem => `Count: ${toolTipItem.yLabel}`
+                }
+              }
+            }}
+            data= {{
+              labels: teamTitles,
+              datasets: [{
+                barPercentage: 0.5,
+                label: 'Your Team',
+                data: positionTypeCount,
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+              }]
+            }}
+              />
+
+          </Grid>
+            <Grid xs={5} item>
+            <Doughnut
+                data={{
+                  labels: teamTitles,
+                  datasets: [
+                    {
+                      label: "% Share of members",
+                      backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850", ],
+                      data: positionTypeCount
+                    }
+                  ]
+                }}
+                options={
+                  {
+                    title: {
+                      display: true,
+                      text: 'Percentage of different roles of people'
+                    },
+                    tooltips: {
+                      callbacks: {
+                        label: (toolTipItem, data) => {
+                          // console.log(data.datasets[0].data[toolTipItem.index], totalCountOfTeam)
+                          const res = (data.datasets[0].data[toolTipItem.index]/totalCountOfTeam)*100
+                          return `${res.toFixed(2)} %`
+                        }
+                      }
+                    }
+                  }
+                }
+              />
+            </Grid>
+          </Grid>
+      
+           
         <Widget
               handleNewUserMessage={this.handleNewUserMessage}
               profileAvatar={ShortLogo}
