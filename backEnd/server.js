@@ -4,7 +4,8 @@ const passport = require("passport");
 const cors = require("cors");
 const passportConfig = require("./config/passport");
 const Authenticated = require("./config/keys").Authenticated
-
+const MongoClient = require('mongodb').MongoClient;
+const jwt = require("jsonwebtoken")
 const dialogflow = require('dialogflow');
 const uuid = require('uuid');
 const projectId = 'myreactagent-bbblvp'
@@ -20,13 +21,15 @@ const app = express();
 // Port Number
 const port = process.env.PORT || 8000; // process.env.port is Heroku's port if you choose to deploy the app there
 
+var db;
 // Connect to MongoDB
-// mongoose
-//   .connect(db, { useNewUrlParser: true })
-//   .then(() =>
-//     console.log("MongoDB successfully connected to the authenticated mongodb")
-//   )
-//   .catch(err => console.log(err));
+MongoClient
+  .connect('mongodb://localhost:27017', function(err, client) {
+    // assert.equal(null, err);
+    console.log("Connected successfully to server");
+   
+    db = client.db('chatApp');
+})
 
 // Bodyparser middleware
 app.use(cors());
@@ -43,20 +46,29 @@ passportConfig(passport);
 
 // Routes
 
-app.get("/", Authenticated, async (req, res) => {
-  console.log("AAYA")
+app.post("/ansMsg", Authenticated, async (req, res) => {
+  // console.log("AAYA", req.body.msg, req.headers)
+  const authorization = req.headers.authorization
+  const token = authorization.split(" ")[1]
+  const decoded = jwt.decode(token);
+  // console.log("---------decoded---------", decoded.preferred_username)
+  const name = decoded.preferred_username.split('@')[0]
   const sessionId = uuid.v4();
   // Create a new session
   const sessionClient = new dialogflow.SessionsClient({ keyFilename: "./myreactagent-bbblvp-3ee03c6c0ae3.json" });
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
  
+  const userData = db.collection('employeeData').findOne({firstName: name}).then((res)=>{
+    console.log("inside query" ,res)
+  })
+  console.log("-------userdata------", userData)
   // The text query request.
   const request = {
     session: sessionPath,
     queryInput: {
       text: {
         // The query to send to the dialogflow agent
-        text: 'Who is my manager',
+        text: req.body.msg,
         // The language used by the client (en-US)
         languageCode: 'en-US',
       },
@@ -75,6 +87,11 @@ app.get("/", Authenticated, async (req, res) => {
   } else {
     console.log(`  No intent matched.`);
   }
+  const queryRes = result.fulfillmentText
+
+  res.status(200).json({
+    message: result.fulfillmentText
+  })
 });
 
 

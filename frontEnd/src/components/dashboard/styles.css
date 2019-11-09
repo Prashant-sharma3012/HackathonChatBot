@@ -1,0 +1,9 @@
+.rcw-conversation-container > .rcw-header {
+    background-color: rgb(24, 126, 145);
+  }
+
+
+.rcw-widget-container button {
+    background-color: rgb(24, 126, 145);
+    cursor: pointer;
+}
