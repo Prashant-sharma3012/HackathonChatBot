@@ -53,14 +53,13 @@ app.post("/ansMsg", Authenticated, async (req, res) => {
   const decoded = jwt.decode(token);
   // console.log("---------decoded---------", decoded.preferred_username)
   const name = decoded.preferred_username.split('@')[0]
+  console.log("===============name===========", name)
   const sessionId = uuid.v4();
   // Create a new session
   const sessionClient = new dialogflow.SessionsClient({ keyFilename: "./myreactagent-bbblvp-3ee03c6c0ae3.json" });
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
  
-  const userData = db.collection('employeeData').findOne({firstName: name}).then((res)=>{
-    console.log("inside query" ,res)
-  })
+  const userData = await db.collection('employeeData').findOne({firstName: name})
   console.log("-------userdata------", userData)
   // The text query request.
   const request = {
@@ -75,19 +74,6 @@ app.post("/ansMsg", Authenticated, async (req, res) => {
     },
   };
 
-  const accountTeam = db.collection('employeeData').find({account: userData.account, positionStatus: "Active"})
-
-  const teamStructure = {}
-
-  accountTeam.map(data=>{
-    const title = accountTeam.jobTitleDescription
-    if(teamStructure.indexOf(title)===-1){
-      teamStructure.title = []
-      teamStructure.title.push(data)
-    }else{
-      teamStructure.title.push(data)
-    }
-  })
  
   // Send request and log result
   const responses = await sessionClient.detectIntent(request);
@@ -104,8 +90,50 @@ app.post("/ansMsg", Authenticated, async (req, res) => {
   const queryRes = result.fulfillmentText
 
   res.status(200).json({
-    message: result.fulfillmentText
+    message: result.fulfillmentText,
   })
+});
+
+
+app.get("/teamInfo", Authenticated, async (req, res) => {
+  // console.log("AAYA", req.body.msg, req.headers)
+  const authorization = req.headers.authorization
+  const token = authorization.split(" ")[1]
+  const decoded = jwt.decode(token);
+  // console.log("---------decoded---------", decoded.preferred_username)
+  const name = decoded.preferred_username.split('@')[0]
+ 
+  const userData = await db.collection('employeeData').findOne({firstName: name})
+  console.log("userdata=========", userData)
+
+  let teamStructure = {}
+
+
+  await db.collection('employeeData').find({account: userData.account, positionStatus: "Active"}).toArray((err, result) => {
+    if (result) {
+      console.log("---------result--------", result)
+      result.map(data=>{
+        const title = data.jobTitleDescription
+        if(!teamStructure[`${title}`]){
+          console.log("=========data=======", data)
+          teamStructure[`${title}`] = []
+          teamStructure[`${title}`].push(data)
+        }else{
+          teamStructure[`${title}`].push(data)
+        }
+        console.log("----teamStructure----------", teamStructure)
+
+      })
+    
+      
+      res.status(200).json({
+        teamStructure,
+        userData
+      })
+        // A doc with the same name already exists
+    }})
+
+
 });
 
 

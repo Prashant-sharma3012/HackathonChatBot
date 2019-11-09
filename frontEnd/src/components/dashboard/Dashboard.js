@@ -19,7 +19,8 @@ class Dashboard extends Component {
     this.state = {
       teamTitles: undefined,
       positionTypeCount: undefined,
-      totalCountOfTeam: undefined
+      totalCountOfTeam: undefined,
+      userInfo: undefined
     }
   }
   componentDidMount() {
@@ -38,7 +39,8 @@ class Dashboard extends Component {
       this.setState({
         teamTitles,
         positionTypeCount,
-        totalCountOfTeam: count
+        totalCountOfTeam: count,
+        userInfo: res.data.userData
       })
     })
   }
@@ -57,7 +59,8 @@ class Dashboard extends Component {
 
   render() {
     const { user } = this.props.auth;
-    const { teamTitles, positionTypeCount, totalCountOfTeam } = this.state
+    const { teamTitles, positionTypeCount, totalCountOfTeam, userInfo } = this.state
+    console.log("--------", userInfo)
     return (
       // <div style={{ height: "75vh" }} className="container valign-wrapper">
       <div>
@@ -78,7 +81,7 @@ class Dashboard extends Component {
                 margin: 30
               }}
             >
-              <ExitToAppRoundedIcon />
+              Logout&nbsp; <ExitToAppRoundedIcon />
             </Fab>
           </Grid>
           <Grid xs={12}   container
@@ -89,6 +92,11 @@ class Dashboard extends Component {
           <Bar
             height={300}
              options= {{
+              title: {
+                display: true,
+                text: userInfo && `Team ${userInfo.account}`,
+                fontSize: 24
+              },
               maintainAspectRatio: false,
               responsive: true,
               legend: {
@@ -149,7 +157,8 @@ class Dashboard extends Component {
                   {
                     title: {
                       display: true,
-                      text: 'Percentage of different roles of people'
+                      text: 'Percentage of different roles of people',
+                      fontSize: 20
                     },
                     tooltips: {
                       callbacks: {
