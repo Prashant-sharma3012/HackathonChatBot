@@ -109,9 +109,8 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    let { idToken } = JSON.parse(localStorage.getItem("okta-token-storage")).idToken
-    let usrName = idToken && idToken.claims && idToken.claims.name
-    addResponseMessage(`Welcome ${usrName}😊`);
+    // let { idToken } = JSON.parse(localStorage.getItem("okta-token-storage"))
+    // let usrName = idToken && idToken.claims && idToken.claims.name
 
     axios.get("http://localhost:8000/teamInfo").then(res => {
       console.log("------------", res.data);
@@ -140,6 +139,8 @@ class Dashboard extends Component {
         }
       })
       
+      
+      addResponseMessage(`Welcome ${ res.data.userData.firstName.toUpperCase()}😊`);
 
       this.setState({
         teamTitles,
