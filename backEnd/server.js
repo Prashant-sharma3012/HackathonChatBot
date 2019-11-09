@@ -127,11 +127,11 @@ app.post("/ansMsg", Authenticated, async (req, res) => {
     })
   }
   else if (result.fulfillmentText) {
-    res.status(200).json({
+    return res.status(200).json({
       message: result.fulfillmentText,
     })
   }
-  res.status(200).json({
+  return res.status(200).json({
     message: 'Sorry can you rephrase it?',
   })
 });

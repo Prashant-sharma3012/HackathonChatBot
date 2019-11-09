@@ -372,7 +372,7 @@ class Dashboard extends Component {
         <Widget
           handleNewUserMessage={this.handleNewUserMessage}
           profileAvatar={ShortLogo}
-          title="This is Bot baba reporting"
+          title="This is Quero reporting"
           subtitle="At your service"
         />
       </div>

@@ -165,7 +165,7 @@ class Login extends Component {
             fontSize: 50,
             color: '#187e91'
           }}>
-            Bot Baba
+            Bot-Quero
           </h1>
           <div style={{
             display: 'flex',
